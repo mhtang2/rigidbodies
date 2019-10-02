@@ -10,20 +10,27 @@ function setup() {
     ground = 580
     dt = 1 / fps
     //Centermass
-    massCx = 0
-    massCy = 0
+    cmX = 0
+    cmY = 0
+    cmVx = 0
+    cmVy = 0
+    cmAx = 0
+    cmAy = 0
+    cmFy = 0
+    cmFx = 0
     massT = 0
     moment = 0
+    grounded = 0
     //System angular stuff
+    torque = 0
     alpha = 0
     omega = 0
-    theta = 0 
+    theta = 0
     //Initiate
     background(255, 255, 0)
     frameRate(fps)
     let canvas = createCanvas(screen_width, screen_height)
     canvas.mousePressed(handleClick)
-
 }
 
 function start() {
@@ -36,37 +43,23 @@ function draw() {
     //Ground
     line(0, ground, screen_width, ground)
     if (runsim) {
-        //Calculate center mass and torque
         grounded = 0
         torque = 0
-        //Calculate cetner of mass
-        for (let n of nodeList) {
-            n.centerMass()
-        }
-        massCx /= massT
-        massCy /= massT
+        //Calculate forces and torques
         for (let n of nodeList) {
             n.calc()
         }
-        alpha = torque / moment
-        console.log(alpha)
         //Update forces and positions of nodes
         for (let n of nodeList) {
-            n.update()
             circle(n.x, n.y, n.d, n.d)
         }
         //Draw edges
         for (let e of edgeList) {
             line(e.n1.x, e.n1.y, e.n2.x, e.n2.y)
-            if (abs(distance(e.n1, e.n2) - e.normLength) > 0.01) {
-                console.log(9)
-            }
         }
-        for (let n of nodeList) {
-            n.gravity()
-        }
+
         stroke(255, 0, 0)
-        circle(massCx, massCy, 3)
+        circle(cmX, cmY, 3)
         stroke(0)
     } else {
         for (let n of nodeList) {
@@ -76,7 +69,7 @@ function draw() {
             line(e.n1.x, e.n1.y, e.n2.x, e.n2.y)
         }
         stroke(255, 0, 0)
-        circle(massCx, massCy, 3)
+        circle(cmX, cmY, 3)
         stroke(0)
     }
 }
@@ -90,12 +83,14 @@ function handleClick() {
     }
     new Edge(nodeList[0], nodeList[l - 1])
     moment = 0
-    massCx = 0
-    massCy = 0
+    cmX = 0
+    cmY = 0
     for (let n of nodeList) {
-        moment += n.m * (Math.pow(n.x - massCx, 2) + Math.pow(n.y - massCy, 2))
         n.centerMass()
     }
-    massCx /= massT
-    massCy /= massT
+    cmX /= massT
+    cmY /= massT
+    for (let n of nodeList) {
+        moment += n.m * (Math.pow(n.x - cmX, 2) + Math.pow(n.y - cmY, 2))
+    }
 }
