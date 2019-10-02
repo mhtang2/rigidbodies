@@ -33,7 +33,7 @@ function Node(x, y, m = 1, r = 10) {
             torque += (massCx - this.x) * this.m * gravityAccel
         }
     }
-    this.update = function() {
+    this.gravity = function() {
         //If system is grounded don't accelerate y
         if (grounded) {
             this.fy = 0
@@ -43,16 +43,21 @@ function Node(x, y, m = 1, r = 10) {
             this.vy += this.fy * this.mdt
             this.y += this.vy * dt
         }
+    }
+    this.update = function() {
         //Handle rotation
         let dy = this.y - massCy
         let dx = this.x - massCx
         let q = Math.atan2(dy, dx)
         let r = Math.sqrt(dy * dy + dx * dx)
-        omega-=alpha*dt
-        q+=omega*dt
-        this.x = massCx+r * Math.cos(q)
-        this.y = massCy+r * Math.sin(q)
-
+        omega -= alpha * dt
+        q += omega * dt
+        let newx = massCx + r * Math.cos(q)
+        let newy = massCy + r * Math.sin(q)
+        this.oldx = this.x
+        this.oldy = this.y
+        this.x = newx
+        this.y = newy
     }
     nodeList.push(this)
 }
@@ -60,5 +65,6 @@ function Node(x, y, m = 1, r = 10) {
 function Edge(n1, n2) {
     this.n1 = n1
     this.n2 = n2
+    this.normLength = distance(n1, n2)
     edgeList.push(this)
 }

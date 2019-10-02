@@ -13,10 +13,11 @@ function setup() {
     massCx = 0
     massCy = 0
     massT = 0
-    //System angular stuff
     moment = 0
+    //System angular stuff
     alpha = 0
     omega = 0
+    theta = 0 
     //Initiate
     background(255, 255, 0)
     frameRate(fps)
@@ -36,8 +37,6 @@ function draw() {
     line(0, ground, screen_width, ground)
     if (runsim) {
         //Calculate center mass and torque
-        massCx = 0
-        massCy = 0
         grounded = 0
         torque = 0
         //Calculate cetner of mass
@@ -49,8 +48,8 @@ function draw() {
         for (let n of nodeList) {
             n.calc()
         }
-
         alpha = torque / moment
+        console.log(alpha)
         //Update forces and positions of nodes
         for (let n of nodeList) {
             n.update()
@@ -59,6 +58,12 @@ function draw() {
         //Draw edges
         for (let e of edgeList) {
             line(e.n1.x, e.n1.y, e.n2.x, e.n2.y)
+            if (abs(distance(e.n1, e.n2) - e.normLength) > 0.01) {
+                console.log(9)
+            }
+        }
+        for (let n of nodeList) {
+            n.gravity()
         }
         stroke(255, 0, 0)
         circle(massCx, massCy, 3)
